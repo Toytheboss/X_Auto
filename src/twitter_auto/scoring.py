@@ -35,6 +35,28 @@ CRYPTO_TERMS = {
     "depin",
 }
 
+POLICY_TERMS = {
+    "regulation",
+    "regulator",
+    "policy",
+    "sec",
+    "cftc",
+    "stablecoin",
+    "election",
+    "politics",
+    "government",
+    "congress",
+    "senate",
+    "law",
+    "bill",
+    "sanctions",
+    "cbdc",
+    "china",
+    "chips",
+    "chip",
+    "deepfake",
+}
+
 DISCUSSION_TERMS = {
     "why",
     "how",
@@ -68,6 +90,7 @@ def score_post(post: RedditPost, keywords: list[str]) -> tuple[float, list[str]]
     keyword_hits = [keyword for keyword in keywords if keyword.lower() in text]
     ai_hits = sorted(AI_TERMS & words)
     crypto_hits = sorted(CRYPTO_TERMS & words)
+    policy_hits = sorted(POLICY_TERMS & words)
     discussion_hits = sorted(DISCUSSION_TERMS & words)
 
     score = 0.0
@@ -82,6 +105,13 @@ def score_post(post: RedditPost, keywords: list[str]) -> tuple[float, list[str]]
     elif ai_hits or crypto_hits:
         score += 1.5
         reasons.append("包含垂直领域信号")
+
+    if policy_hits and (ai_hits or crypto_hits):
+        score += 3.0
+        reasons.append("包含政策/监管/政治交叉议题")
+    elif policy_hits:
+        score += 1.2
+        reasons.append("包含政策/监管/政治议题")
 
     if discussion_hits:
         score += min(len(discussion_hits), 3) * 0.9

@@ -2,11 +2,12 @@
 
 一个面向 AI x Crypto 自媒体账号的自动运营 Agent。
 
-它会优先从 Reddit RSS 抓取 AI x Crypto 社区内容，筛掉低价值内容，按「AI x Crypto 交叉度、讨论热度、新鲜度、可二创程度」评分，生成中文 X/Twitter 草稿，并通过 Telegram 请求你审批。只有你批准后，系统才会调用 X API 发布。
+它会优先从 Reddit RSS 和新闻 RSS 抓取 AI、Crypto、监管/政治相关热点，筛掉低价值内容，按「交叉议题、新鲜度、风险/政策价值、可二创程度」评分，生成中文 X/Twitter 草稿，并通过 Telegram 请求你审批。只有你批准后，系统才会调用 X API 发布。
 
 ## 当前 MVP 做什么
 
 - 默认抓取 Reddit RSS；也可以切换到 Google News、AI/Crypto 新闻 RSS、Hacker News 和技术博客。
+- Google News 查询覆盖 AI regulation、crypto regulation、stablecoin regulation、SEC crypto、AI chips、political deepfake 等实时议题。
 - 过滤 stickied、NSFW 和明显低质量关键词。
 - 给帖子打分并说明入选原因。
 - 生成三种内容素材：
