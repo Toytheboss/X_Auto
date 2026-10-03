@@ -282,6 +282,30 @@ X_MAX_POST_CHARS=800
 DEEPSEEK_TARGET_CHARS=600
 ```
 
+## 写作风格随机化
+
+系统会从 `config/style_profiles.json` 里选择一个风格注入 DeepSeek prompt，避免每天都是同一种模板。
+
+默认是每天固定一个风格：
+
+```env
+STYLE_PROFILE_MODE=daily
+```
+
+如果想每次运行都随机：
+
+```env
+STYLE_PROFILE_MODE=random
+```
+
+你可以在 `config/style_profiles.json` 里增删风格，例如：
+
+- 冷静研究员
+- Crypto 老韭菜
+- 技术产品经理
+- 怀疑主义者
+- 随手观察
+
 调试时可以禁用 DeepSeek：
 
 ```bash

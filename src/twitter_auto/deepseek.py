@@ -7,6 +7,7 @@ import requests
 
 from .humanizer import humanize_text
 from .models import CuratedIdea
+from .style_profiles import choose_style_profile, load_style_profiles, render_style_prompt
 
 
 STYLE_PROMPT = """你是一个中文 X/Twitter 自媒体编辑，账号定位是 AI x Crypto 早期信号观察。
@@ -45,6 +46,7 @@ class DeepSeekClient:
         self.model = model or os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
         self.base_url = base_url or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
         self.target_chars = int(os.getenv("DEEPSEEK_TARGET_CHARS", "600"))
+        self.style_profile = choose_style_profile(load_style_profiles())
 
     @property
     def configured(self) -> bool:
@@ -73,7 +75,7 @@ class DeepSeekClient:
             json={
                 "model": self.model,
                 "messages": [
-                    {"role": "system", "content": STYLE_PROMPT},
+                    {"role": "system", "content": f"{STYLE_PROMPT}\n\n{render_style_prompt(self.style_profile)}"},
                     {"role": "user", "content": user_prompt},
                 ],
                 "temperature": 0.7,
