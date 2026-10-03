@@ -112,12 +112,18 @@ twitter-auto poll-telegram
 Telegram 审批时也支持文本命令：
 
 ```text
+/help
+/status
+/budget
+/queue
+/queue approved
+/collect 5
+/collect 5 rss
+/collect 5 reddit-rss
+/notify 5
 /edit 文章ID 新文案
 /approve 文章ID
 /reject 文章ID
-/status
-/collect 5
-/notify 5
 /publish 1
 ```
 
@@ -130,7 +136,12 @@ Telegram 审批时也支持文本命令：
 命令说明：
 
 - `/status`: 查看当前队列和 X 发布调用次数。
-- `/collect 5`: 从 Reddit RSS 采集并生成 5 条候选。
+- `/budget`: 查看 X 发布预算和最近发布调用。
+- `/queue`: 查看所有队列状态。
+- `/queue approved`: 查看某个状态下的内容 ID。
+- `/collect 5`: 从默认 Reddit RSS 采集并生成 5 条候选。
+- `/collect 5 rss`: 从非 Reddit RSS 多源采集。
+- `/collect 5 reddit-rss`: 从 Reddit RSS 采集。
 - `/notify 5`: 把 5 条 drafted 内容发到 Telegram 审批。
 - `/publish 1`: 发布 1 条 approved 内容到 X。
 

@@ -10,8 +10,9 @@ from .budget import BudgetExceededError, XBudget
 from .config import load_config
 from .deepseek import enhance_ideas_with_deepseek
 from .drafts import curate_posts
-from .feeds import FeedClient, load_feed_config
+from .feeds import FeedClient, build_feeds, load_feed_config
 from .humanizer import humanize_text
+from .reddit import RedditClient
 from .scoring import rank_posts
 from .store import ContentStore
 from .x_client import XClient
@@ -203,10 +204,23 @@ class TelegramBot:
             self.send_message(self.build_status_text())
             return 1
 
+        if command == "/help":
+            self.send_message(self.build_help_text())
+            return 1
+
+        if command == "/budget":
+            self.send_message(self.build_budget_text())
+            return 1
+
+        if command == "/queue":
+            status = parts[1] if len(parts) >= 2 else None
+            self.send_message(self.build_queue_text(status=status))
+            return 1
+
         if command == "/collect":
-            top = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 5
-            self.send_message(f"开始采集，top={top}。这可能需要几十秒。")
-            self.send_message(self.collect_from_reddit_rss(top=top))
+            top, source = self.parse_collect_args(parts[1:])
+            self.send_message(f"开始采集，source={source}, top={top}。这可能需要几十秒。")
+            self.send_message(self.collect_content(top=top, source=source))
             return 1
 
         if command == "/notify":
@@ -222,6 +236,39 @@ class TelegramBot:
 
         return 0
 
+    @staticmethod
+    def build_help_text() -> str:
+        return "\n".join(
+            [
+                "可用命令：",
+                "/help - 查看命令",
+                "/status - 查看队列和 X 调用次数",
+                "/budget - 查看 X 发布预算",
+                "/queue - 查看队列",
+                "/queue approved - 查看某个状态",
+                "/collect 5 - 默认从 Reddit RSS 采集 5 条",
+                "/collect 5 rss - 从非 Reddit RSS 多源采集",
+                "/collect 5 reddit-rss - 从 Reddit RSS 采集",
+                "/notify 5 - 发送 5 条草稿给你审批",
+                "/edit 文章ID 新文案 - 编辑草稿",
+                "/approve 文章ID - 批准",
+                "/reject 文章ID - 拒绝",
+                "/publish 1 - 发布 1 条 approved 内容到 X",
+            ]
+        )
+
+    @staticmethod
+    def parse_collect_args(args: list[str]) -> tuple[int, str]:
+        top = 5
+        source = "reddit-rss"
+        allowed_sources = {"reddit-rss", "rss", "reddit", "both"}
+        for arg in args:
+            if arg.isdigit():
+                top = int(arg)
+            elif arg in allowed_sources:
+                source = arg
+        return top, source
+
     def build_status_text(self) -> str:
         lines = ["当前队列："]
         for status in ["drafted", "pending_approval", "approved", "published", "rejected"]:
@@ -235,10 +282,50 @@ class TelegramBot:
         lines.append(f"\nX 发布调用：{budget.used_today()}/{budget.daily_limit}")
         return "\n".join(lines)
 
-    def collect_from_reddit_rss(self, top: int = 5, limit: int = 20) -> str:
+    def build_budget_text(self) -> str:
+        budget = XBudget(self.store)
+        lines = [
+            f"X 发布调用：{budget.used_today()}/{budget.daily_limit}",
+            f"今日剩余：{budget.remaining_today()}",
+        ]
+        calls = self.store.recent_api_calls("x", limit=5)
+        if calls:
+            lines.append("\n最近调用：")
+            lines.extend(
+                f"- {call['created_at']} idea=#{call['idea_id']} {call['purpose']}"
+                for call in calls
+            )
+        return "\n".join(lines)
+
+    def build_queue_text(self, status: str | None = None) -> str:
+        statuses = [status] if status else ["drafted", "pending_approval", "approved", "published", "rejected"]
+        lines: list[str] = []
+        for current_status in statuses:
+            rows = self.store.list_ideas(status=current_status, limit=20)
+            ids = ", ".join(f"#{row['id']}" for row in rows) if rows else "空"
+            lines.append(f"{current_status}: {ids}")
+        return "\n".join(lines)
+
+    def collect_content(self, top: int = 5, source: str = "reddit-rss", limit: int = 20) -> str:
+        posts = []
         feed_config = load_feed_config(None)
-        feeds = list(feed_config.get("reddit_rss", []))
-        posts = FeedClient().fetch_many(feeds, limit=limit)
+        if source in {"reddit-rss", "rss", "both"}:
+            if source == "reddit-rss":
+                feeds = list(feed_config.get("reddit_rss", []))
+            else:
+                feeds = build_feeds(feed_config, include_reddit_rss=(source == "both"))
+            posts.extend(FeedClient().fetch_many(feeds, limit=limit))
+
+        if source in {"reddit", "both"}:
+            config = load_config(None)
+            posts.extend(
+                RedditClient().fetch_many(
+                    config["subreddits"],
+                    sort="rising",
+                    limit=limit,
+                )
+            )
+
         config = load_config(None)
         ranked = rank_posts(
             posts,
