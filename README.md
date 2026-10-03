@@ -240,6 +240,7 @@ X_API_SECRET=
 X_ACCESS_TOKEN=
 X_ACCESS_TOKEN_SECRET=
 X_DAILY_CALL_LIMIT=10
+X_MAX_POST_CHARS=800
 ```
 
 安全策略：
@@ -269,9 +270,17 @@ RSS 抓取
 DEEPSEEK_API_KEY=
 DEEPSEEK_MODEL=deepseek-chat
 DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_TARGET_CHARS=600
 ```
 
 没有配置 `DEEPSEEK_API_KEY` 时，系统会自动回退到本地 humanizer。
+
+如果你的 X 账号支持长文，可以调大：
+
+```env
+X_MAX_POST_CHARS=800
+DEEPSEEK_TARGET_CHARS=600
+```
 
 调试时可以禁用 DeepSeek：
 

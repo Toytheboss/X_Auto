@@ -28,7 +28,7 @@ STYLE_PROMPT = """你是一个中文 X/Twitter 自媒体编辑，账号定位是
 输出要求：
 - 只输出推文正文
 - 中文
-- 100-180 字
+- 300-600 字
 - 不要 hashtag
 - 不要 emoji
 """
@@ -44,6 +44,7 @@ class DeepSeekClient:
         self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY")
         self.model = model or os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
         self.base_url = base_url or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+        self.target_chars = int(os.getenv("DEEPSEEK_TARGET_CHARS", "600"))
 
     @property
     def configured(self) -> bool:
@@ -84,7 +85,7 @@ class DeepSeekClient:
             raise RuntimeError(f"DeepSeek request failed: {response.status_code} {response.text}")
         payload = response.json()
         content = humanize_text(payload["choices"][0]["message"]["content"])
-        return self.fit_tweet_length(content)
+        return self.fit_tweet_length(content, limit=self.target_chars)
 
     def fit_tweet_length(self, text: str, limit: int = 240) -> str:
         text = humanize_text(text)
@@ -106,7 +107,7 @@ class DeepSeekClient:
                             "你是中文社交媒体编辑。把输入压缩成一条中文 X 推文，"
                             "保留判断和具体机制，删除铺垫和总结腔。不要 hashtag，不要 emoji，"
                             "不要投资建议。少用抽象词，像真人随手记录。"
-                            "必须少于 220 个中文字符。只输出正文。"
+                            f"必须少于 {limit} 个中文字符。只输出正文。"
                         ),
                     },
                     {"role": "user", "content": text},

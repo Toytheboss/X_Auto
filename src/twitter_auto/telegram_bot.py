@@ -361,8 +361,8 @@ class TelegramBot:
         for idea in ideas:
             idea_id = int(idea["id"])
             text = humanize_text(str(idea["short_post"]).strip())
-            if len(text) > 280:
-                published.append(f"跳过 #{idea_id}：超过 280 字。")
+            if len(text) > client.max_post_chars:
+                published.append(f"跳过 #{idea_id}：{len(text)} 字，超过上限 {client.max_post_chars}。")
                 continue
             try:
                 budget.ensure_available()

@@ -303,8 +303,8 @@ def command_publish_approved(args: argparse.Namespace) -> None:
     for idea in ideas:
         idea_id = int(idea["id"])
         text = humanize_text(str(idea["short_post"]).strip())
-        if len(text) > 280:
-            print(f"Skipped idea #{idea_id}: tweet is {len(text)} characters.")
+        if len(text) > client.max_post_chars:
+            print(f"Skipped idea #{idea_id}: tweet is {len(text)} characters, max is {client.max_post_chars}.")
             continue
 
         if not args.live:
