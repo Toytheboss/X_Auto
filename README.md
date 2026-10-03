@@ -115,6 +115,10 @@ Telegram 审批时也支持文本命令：
 /edit 文章ID 新文案
 /approve 文章ID
 /reject 文章ID
+/status
+/collect 5
+/notify 5
+/publish 1
 ```
 
 例如：
@@ -122,6 +126,13 @@ Telegram 审批时也支持文本命令：
 ```text
 /edit 12 这条我改成自己的观察……
 ```
+
+命令说明：
+
+- `/status`: 查看当前队列和 X 发布调用次数。
+- `/collect 5`: 从 Reddit RSS 采集并生成 5 条候选。
+- `/notify 5`: 把 5 条 drafted 内容发到 Telegram 审批。
+- `/publish 1`: 发布 1 条 approved 内容到 X。
 
 本地手动批准待审批内容，适合测试：
 

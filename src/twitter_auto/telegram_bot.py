@@ -6,8 +6,15 @@ import sqlite3
 
 import requests
 
+from .budget import BudgetExceededError, XBudget
+from .config import load_config
+from .deepseek import enhance_ideas_with_deepseek
+from .drafts import curate_posts
+from .feeds import FeedClient, load_feed_config
 from .humanizer import humanize_text
+from .scoring import rank_posts
 from .store import ContentStore
+from .x_client import XClient
 
 
 class TelegramBot:
@@ -192,7 +199,98 @@ class TelegramBot:
             self.send_message(f"已{('批准' if status == 'approved' else '拒绝')} #{idea_id}。")
             return 1
 
+        if command == "/status":
+            self.send_message(self.build_status_text())
+            return 1
+
+        if command == "/collect":
+            top = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 5
+            self.send_message(f"开始采集，top={top}。这可能需要几十秒。")
+            self.send_message(self.collect_from_reddit_rss(top=top))
+            return 1
+
+        if command == "/notify":
+            limit = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 5
+            sent = self.notify_drafts(limit=limit)
+            self.send_message(f"已发送 {sent} 条待审批内容。")
+            return 1
+
+        if command == "/publish":
+            limit = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 1
+            self.send_message(self.publish_approved(limit=limit))
+            return 1
+
         return 0
+
+    def build_status_text(self) -> str:
+        lines = ["当前队列："]
+        for status in ["drafted", "pending_approval", "approved", "published", "rejected"]:
+            rows = self.store.list_ideas(status=status, limit=20)
+            if rows:
+                ids = ", ".join(f"#{row['id']}" for row in rows)
+                lines.append(f"- {status}: {ids}")
+        if len(lines) == 1:
+            lines.append("- 空")
+        budget = XBudget(self.store)
+        lines.append(f"\nX 发布调用：{budget.used_today()}/{budget.daily_limit}")
+        return "\n".join(lines)
+
+    def collect_from_reddit_rss(self, top: int = 5, limit: int = 20) -> str:
+        feed_config = load_feed_config(None)
+        feeds = list(feed_config.get("reddit_rss", []))
+        posts = FeedClient().fetch_many(feeds, limit=limit)
+        config = load_config(None)
+        ranked = rank_posts(
+            posts,
+            keywords=config["keywords"],
+            blocked_terms=config["blocked_terms"],
+            min_score=2.5,
+        )
+        ideas = curate_posts(ranked[:top])
+        ideas = enhance_ideas_with_deepseek(ideas)
+        inserted, updated = self.store.upsert_ideas(ideas)
+        return f"采集完成：扫描 {len(posts)} 条，入选 {len(ideas)} 条，新增 {inserted}，更新 {updated}。"
+
+    def notify_drafts(self, limit: int = 5) -> int:
+        ideas = self.store.list_ideas(status="drafted", limit=limit)
+        sent = 0
+        for idea in ideas:
+            message_id = self.send_approval(idea)
+            self.store.set_telegram_message(int(idea["id"]), message_id)
+            sent += 1
+        return sent
+
+    def publish_approved(self, limit: int = 1) -> str:
+        budget = XBudget(self.store)
+        client = XClient()
+        if not client.configured:
+            return "X API 凭证未配置，无法发布。"
+
+        ideas = self.store.list_ideas(status="approved", limit=limit)
+        if not ideas:
+            return "没有 approved 内容可发布。"
+
+        published: list[str] = []
+        for idea in ideas:
+            idea_id = int(idea["id"])
+            text = humanize_text(str(idea["short_post"]).strip())
+            if len(text) > 280:
+                published.append(f"跳过 #{idea_id}：超过 280 字。")
+                continue
+            try:
+                budget.ensure_available()
+                budget.record_publish(idea_id)
+                tweet_id = client.post_tweet(text)
+                self.store.mark_published(idea_id, tweet_id)
+                published.append(f"已发布 #{idea_id}: {tweet_id}")
+            except BudgetExceededError as error:
+                published.append(str(error))
+                break
+            except Exception as error:
+                published.append(f"发布 #{idea_id} 失败：{error}")
+                break
+
+        return "\n".join(published)
 
 
 def read_telegram_offset(path: str = "data/telegram_offset.json") -> int | None:
