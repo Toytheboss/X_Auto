@@ -10,10 +10,10 @@ from pathlib import Path
 
 DEFAULT_PROFILES = [
     {
-        "id": "calm_analyst",
-        "name": "冷静研究员",
-        "voice": "像一个做研究的人，语气克制，少下结论，多讲机制和约束。",
-        "structure": "先说现象，再拆机制，最后留一个谨慎判断。避免情绪化。",
+        "id": "fact_brief",
+        "name": "事实简报",
+        "voice": "像在整理一条信息简报，语气克制，只说来源、发生了什么、涉及哪些对象。",
+        "structure": "先交代事实，再补背景，最后列出仍待确认的点。",
     }
 ]
 

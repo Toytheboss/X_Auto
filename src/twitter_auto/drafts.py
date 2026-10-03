@@ -23,8 +23,8 @@ def infer_angle(post: RedditPost, reasons: list[str]) -> str:
 def build_short_post(post: RedditPost, angle: str) -> str:
     return humanize_text(
         f"我看到一条关于「{post.title}」的信息值得看。\n\n"
-        f"我的判断：它更像是「{angle}」方向的早期信号。\n\n"
-        "如果这个趋势继续发展，中文圈很可能会晚半拍才开始讨论。"
+        f"这条信息和「{angle}」有关。\n\n"
+        "目前更适合先记录事实、来源和后续需要验证的点。"
     )
 
 
