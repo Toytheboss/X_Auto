@@ -33,6 +33,7 @@ STYLE_PROMPT = """你是一个中文 X/Twitter 自媒体编辑，账号定位是
 - 300-600 字
 - 不要 hashtag
 - 不要 emoji
+- 不要在正文里写来源链接或"来源："，来源会显示在 Telegram 审批卡片里
 """
 
 

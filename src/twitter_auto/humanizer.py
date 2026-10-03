@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import os
 
 
 PHRASE_REPLACEMENTS = {
@@ -60,6 +61,8 @@ def append_source(text: str, source_url: str) -> str:
     output = humanize_text(text)
     lines = [line for line in output.splitlines() if not line.strip().startswith("来源：")]
     output = "\n".join(lines).strip()
+    if os.getenv("APPEND_SOURCE_TO_POST", "false").lower() not in {"1", "true", "yes"}:
+        return output
     if not source_url or source_url in output:
         return output
     return f"{output}\n\n{source_suffix(source_url)}"
