@@ -1,0 +1,90 @@
+{
+  "google_news_queries": [
+    "AI agent crypto",
+    "onchain AI agent",
+    "AI trading bot crypto",
+    "DePIN AI",
+    "crypto AI agent",
+    "autonomous agent blockchain"
+  ],
+  "feeds": [
+    {
+      "name": "CoinDesk",
+      "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"
+    },
+    {
+      "name": "Cointelegraph",
+      "url": "https://cointelegraph.com/rss"
+    },
+    {
+      "name": "Decrypt",
+      "url": "https://decrypt.co/feed"
+    },
+    {
+      "name": "The Defiant",
+      "url": "https://thedefiant.io/api/feed"
+    },
+    {
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/rss"
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml"
+    },
+    {
+      "name": "OpenAI Blog",
+      "url": "https://openai.com/news/rss.xml"
+    }
+  ],
+  "reddit_rss": [
+    {
+      "name": "r/LocalLLaMA",
+      "url": "https://www.reddit.com/r/LocalLLaMA/.rss"
+    },
+    {
+      "name": "r/OpenAI",
+      "url": "https://www.reddit.com/r/OpenAI/.rss"
+    },
+    {
+      "name": "r/ClaudeAI",
+      "url": "https://www.reddit.com/r/ClaudeAI/.rss"
+    },
+    {
+      "name": "r/AI_Agents",
+      "url": "https://www.reddit.com/r/AI_Agents/.rss"
+    },
+    {
+      "name": "r/CryptoCurrency",
+      "url": "https://www.reddit.com/r/CryptoCurrency/.rss"
+    },
+    {
+      "name": "r/CryptoMarkets",
+      "url": "https://www.reddit.com/r/CryptoMarkets/.rss"
+    },
+    {
+      "name": "r/ethfinance",
+      "url": "https://www.reddit.com/r/ethfinance/.rss"
+    },
+    {
+      "name": "r/defi",
+      "url": "https://www.reddit.com/r/defi/.rss"
+    },
+    {
+      "name": "r/ethereum",
+      "url": "https://www.reddit.com/r/ethereum/.rss"
+    },
+    {
+      "name": "r/solana",
+      "url": "https://www.reddit.com/r/solana/.rss"
+    },
+    {
+      "name": "r/cryptodevs",
+      "url": "https://www.reddit.com/r/cryptodevs/.rss"
+    },
+    {
+      "name": "r/ethdev",
+      "url": "https://www.reddit.com/r/ethdev/.rss"
+    }
+  ]
+}

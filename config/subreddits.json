@@ -1,0 +1,46 @@
+{
+  "subreddits": [
+    "LocalLLaMA",
+    "OpenAI",
+    "ClaudeAI",
+    "ArtificialInteligence",
+    "singularity",
+    "CryptoCurrency",
+    "ethereum",
+    "solana",
+    "ethfinance",
+    "defi",
+    "cryptodevs",
+    "ethdev"
+  ],
+  "keywords": [
+    "agent",
+    "agents",
+    "ai agent",
+    "wallet",
+    "on-chain",
+    "trading bot",
+    "defi",
+    "airdrop",
+    "token",
+    "tokenomics",
+    "llm",
+    "local model",
+    "automation",
+    "scam",
+    "rug",
+    "solana",
+    "ethereum",
+    "zk",
+    "depin"
+  ],
+  "blocked_terms": [
+    "giveaway",
+    "moon",
+    "wen",
+    "price prediction",
+    "100x",
+    "shill",
+    "meme coin"
+  ]
+}
