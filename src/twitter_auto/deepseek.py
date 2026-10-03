@@ -5,7 +5,7 @@ from dataclasses import replace
 
 import requests
 
-from .humanizer import humanize_text
+from .humanizer import append_source, humanize_text, source_suffix
 from .models import CuratedIdea
 from .style_profiles import choose_style_profile, load_style_profiles, render_style_prompt
 
@@ -88,7 +88,10 @@ class DeepSeekClient:
             raise RuntimeError(f"DeepSeek request failed: {response.status_code} {response.text}")
         payload = response.json()
         content = humanize_text(payload["choices"][0]["message"]["content"])
-        return self.fit_tweet_length(content, limit=self.target_chars)
+        source_len = len(source_suffix(post.source_url)) + 2
+        body_limit = max(160, self.target_chars - source_len)
+        content = self.fit_tweet_length(content, limit=body_limit)
+        return append_source(content, post.source_url)
 
     def fit_tweet_length(self, text: str, limit: int = 240) -> str:
         text = humanize_text(text)

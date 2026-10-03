@@ -25,7 +25,7 @@ from .config import load_config
 from .deepseek import enhance_ideas_with_deepseek
 from .drafts import curate_posts
 from .feeds import FeedClient, build_feeds, load_feed_config
-from .humanizer import humanize_text
+from .humanizer import append_source, humanize_text
 from .reddit import RedditClient
 from .report import render_markdown
 from .sample_data import sample_posts
@@ -302,7 +302,7 @@ def command_publish_approved(args: argparse.Namespace) -> None:
 
     for idea in ideas:
         idea_id = int(idea["id"])
-        text = humanize_text(str(idea["short_post"]).strip())
+        text = append_source(str(idea["short_post"]).strip(), str(idea["source_url"]))
         if len(text) > client.max_post_chars:
             print(f"Skipped idea #{idea_id}: tweet is {len(text)} characters, max is {client.max_post_chars}.")
             continue

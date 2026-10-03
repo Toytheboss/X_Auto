@@ -50,3 +50,16 @@ def humanize_text(text: str) -> str:
     lines = [line.strip() for line in output.splitlines()]
     lines = [line for line in lines if line]
     return "\n\n".join(lines)
+
+
+def source_suffix(source_url: str) -> str:
+    return f"来源：{source_url.strip()}"
+
+
+def append_source(text: str, source_url: str) -> str:
+    output = humanize_text(text)
+    lines = [line for line in output.splitlines() if not line.strip().startswith("来源：")]
+    output = "\n".join(lines).strip()
+    if not source_url or source_url in output:
+        return output
+    return f"{output}\n\n{source_suffix(source_url)}"

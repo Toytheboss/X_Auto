@@ -11,7 +11,7 @@ from .config import load_config
 from .deepseek import enhance_ideas_with_deepseek
 from .drafts import curate_posts
 from .feeds import FeedClient, build_feeds, load_feed_config
-from .humanizer import humanize_text
+from .humanizer import append_source, humanize_text
 from .reddit import RedditClient
 from .scoring import rank_posts
 from .store import ContentStore
@@ -360,7 +360,7 @@ class TelegramBot:
         published: list[str] = []
         for idea in ideas:
             idea_id = int(idea["id"])
-            text = humanize_text(str(idea["short_post"]).strip())
+            text = append_source(str(idea["short_post"]).strip(), str(idea["source_url"]))
             if len(text) > client.max_post_chars:
                 published.append(f"跳过 #{idea_id}：{len(text)} 字，超过上限 {client.max_post_chars}。")
                 continue

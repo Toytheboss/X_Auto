@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .humanizer import humanize_text
+from .humanizer import append_source, humanize_text
 from .models import CuratedIdea, RedditPost
 
 
@@ -21,10 +21,11 @@ def infer_angle(post: RedditPost, reasons: list[str]) -> str:
 
 
 def build_short_post(post: RedditPost, angle: str) -> str:
-    return humanize_text(
+    return append_source(
         f"我看到一条关于「{post.title}」的信息值得看。\n\n"
         f"这条信息和「{angle}」有关。\n\n"
-        "目前更适合先记录事实、来源和后续需要验证的点。"
+        "目前更适合先记录事实、来源和后续需要验证的点。",
+        post.source_url,
     )
 
 
